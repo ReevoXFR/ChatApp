@@ -13,6 +13,7 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
+
         hoc_logo.setOnClickListener{
             val intent = Intent(baseContext, MainActivity::class.java)
                     startActivity(intent)
