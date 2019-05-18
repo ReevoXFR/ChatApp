@@ -37,6 +37,11 @@ dependencies {
 
     //play service auth
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
+
+    //facebook
+    implementation 'com.facebook.android:facebook-login:5.0.1'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'
