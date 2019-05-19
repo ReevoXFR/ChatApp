@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.telecom.Call
 import android.widget.Toast
 import com.facebook.CallbackManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -53,7 +52,7 @@ class SignInActivity : AppCompatActivity() {
                 override fun onSuccess(loginResult: LoginResult) {
                     Toast.makeText(baseContext, "Facebook sign in Successful", Toast.LENGTH_LONG).show()
 
-                    val intent = Intent(baseContext, ChatActivity::class.java)
+                    val intent = Intent(baseContext, MainActivity::class.java)
                     startActivity(intent)
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
 
@@ -92,7 +91,7 @@ class SignInActivity : AppCompatActivity() {
         super.onStart()
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            startActivity(ChatActivity.getLaunchIntent(this))
+            startActivity(MainActivity.getLaunchIntent(this))
             finish()
         }
     }
@@ -131,7 +130,7 @@ class SignInActivity : AppCompatActivity() {
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
 
-                startActivity(ChatActivity.getLaunchIntent(this))
+                startActivity(MainActivity.getLaunchIntent(this))
             } else {
                 Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
             }
