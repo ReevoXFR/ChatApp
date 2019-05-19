@@ -70,7 +70,7 @@ class SignInActivity : AppCompatActivity() {
 
 
         val accessToken = AccessToken.getCurrentAccessToken()
-        val isLoggedIn = accessToken != null && !accessToken.isExpired
+        //val isLoggedIn = accessToken != null && !accessToken.isExpired
 
     }
 
