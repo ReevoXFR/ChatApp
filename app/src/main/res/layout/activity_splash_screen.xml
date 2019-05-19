@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/bg"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop" tools:ignore="ContentDescription"/>
 
     <ImageView
             android:id="@+id/hoc_logo"
@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="@+id/background" app:layout_constraintEnd_toEndOf="@+id/background"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/background" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="@+id/background"/>
+            app:layout_constraintTop_toTopOf="@+id/background" tools:ignore="ContentDescription"/>
 
     <!--<ImageView-->
             <!--android:id="@+id/loading"-->
