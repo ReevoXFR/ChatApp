@@ -43,34 +43,22 @@ class SignInActivity : AppCompatActivity() {
         setupUI()
 
         //Facebook
-
-
         callbackManager = CallbackManager.Factory.create()
-
         LoginManager.getInstance().registerCallback(callbackManager,
             object : FacebookCallback<LoginResult> {
                 override fun onSuccess(loginResult: LoginResult) {
                     Toast.makeText(baseContext, "Facebook sign in Successful", Toast.LENGTH_LONG).show()
-
                     val intent = Intent(baseContext, MainActivity::class.java)
                     startActivity(intent)
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-
                 }
-
                 override fun onCancel() {
                     Toast.makeText(baseContext, "Facebook sign in Cancel", Toast.LENGTH_LONG).show()
                 }
-
                 override fun onError(exception: FacebookException) {
                     Toast.makeText(baseContext, "Facebook sign in Error", Toast.LENGTH_LONG).show()
                 }
             })
-
-
-        val accessToken = AccessToken.getCurrentAccessToken()
-        //val isLoggedIn = accessToken != null && !accessToken.isExpired
-
     }
 
     private fun configureGoogleSignIn() {
@@ -103,7 +91,6 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         //Google
         if (requestCode == RC_SIGN_IN) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -116,20 +103,14 @@ class SignInActivity : AppCompatActivity() {
                 Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
             }
         }
-
-
         //Facebook
-
         callbackManager.onActivityResult(requestCode, resultCode, data)
-
     }
-
 
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-
                 startActivity(MainActivity.getLaunchIntent(this))
             } else {
                 Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
@@ -142,7 +123,4 @@ class SignInActivity : AppCompatActivity() {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
     }
-
-
-
 }
