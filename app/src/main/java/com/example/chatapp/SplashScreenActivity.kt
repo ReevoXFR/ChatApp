@@ -15,7 +15,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
 
         hoc_logo.setOnClickListener{
-            val intent = Intent(baseContext, SignInActivity::class.java)
+            val intent = Intent(baseContext, MainMessagesActivity::class.java)
                     startActivity(intent)
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }

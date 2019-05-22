@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<android.support.v7.widget.RecyclerView
-			android:layout_marginTop="30dp"
 			android:id="@+id/recyclerView_chatLog"
+			app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 			android:layout_width="match_parent"
 			android:layout_marginBottom="60dp"
-			android:layout_height="match_parent" />
+			android:layout_height="match_parent"
+	android:background="@color/com_facebook_button_background_color_disabled"/>
 
 	<FrameLayout
 			android:layout_width="match_parent"
@@ -22,6 +23,7 @@
 
 			<EditText
 					android:id="@+id/chatLog_writeText"
+					android:hint="      Insert message here"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_weight="1" />
