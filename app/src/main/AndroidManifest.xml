@@ -1,64 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:dist="http://schemas.android.com/apk/distribution"
-          xmlns:tools="http://schemas.android.com/tools" package="com.example.chatapp" tools:ignore="ExtraText">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.example.chatapp"
+          tools:ignore="ExtraText">
 
-    <dist:module dist:instant="true"/>
+	<dist:module dist:instant="true"/>
 
-    // PERMISSIONS
-    <uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
 
-    <application
-            android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            android:theme="@style/AppTheme" tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
-                   android:value="@string/facebook_app_id"/>
-
-        <activity android:name="com.facebook.FacebookActivity"
-                  android:configChanges=
-                          "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-                  android:label="@string/app_name" />
-        <activity
-                android:name="com.facebook.CustomTabActivity"
-                android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/fb_login_protocol_scheme" />
-            </intent-filter>
-        </activity>
+	<application
+			android:allowBackup="true"
+			android:icon="@mipmap/ic_launcher"
+			android:label="@string/app_name"
+			android:roundIcon="@mipmap/ic_launcher_round"
+			android:supportsRtl="true"
+			android:theme="@style/AppTheme"
+			tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
 
+		<activity android:name=".NewUsersActivity">
+			<meta-data android:name = "android.support.PARENT_ACTIVITY"
+			           android:value=".MainMessagesActivity"/>
+		</activity>
 
+		<activity android:name=".MainMessagesActivity">
+		</activity>
 
-        <activity
-        android:name=".SplashScreenActivity"
-        android:theme="@style/SplashScreenTheme"
-        android:noHistory="true">
+		<activity android:name=".registration.SignInActivity">
+		</activity>
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+		<meta-data
+				android:name="com.facebook.sdk.ApplicationId"
+				android:value="@string/facebook_app_id"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+		<activity
+				android:name="com.facebook.FacebookActivity"
+				android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+				android:label="@string/app_name"/>
 
-        </activity>
+		<activity
+				android:name="com.facebook.CustomTabActivity"
+				android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
 
+				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.BROWSABLE"/>
 
-        <activity android:name=".MainActivity"> </activity>
+				<data android:scheme="@string/fb_login_protocol_scheme"/>
+			</intent-filter>
+		</activity>
 
+		<activity
+				android:name=".SplashScreenActivity"
+				android:noHistory="true"
+				android:theme="@style/SplashScreenTheme">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
 
-        <activity android:name=".SignInActivity"> </activity>
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
 
+		<activity android:name=".chatRooms.DeveloperChatRoomActivity">
 
-        <activity android:name=".MainActivity"> </activity>
+		</activity>
 
-    </application>
+	</application>
 
 </manifest>
