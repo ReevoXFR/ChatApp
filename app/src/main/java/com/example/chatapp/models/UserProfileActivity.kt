@@ -14,7 +14,7 @@ class UserProfileActivity : AppCompatActivity() {
 		val user = intent.getParcelableExtra<User>(NewUsersActivity.USER_KEY)
 
 
-		supportActionBar?.title = usr
+		supportActionBar?.title = user.username
 
 	}
 }
