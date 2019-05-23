@@ -19,8 +19,10 @@ class MainMessagesActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main_messages)
-		verifyUserIsLoggedIn()
 		setupUI()
+
+		val cls2 = SignInActivity()
+		cls2.saveUserToFirebaseDatabase()
 	}
 
 	private fun setupUI(){
@@ -40,23 +42,6 @@ class MainMessagesActivity : AppCompatActivity() {
 		val intent = Intent(this, SignInActivity::class.java)
 		startActivity(intent)
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-	}
-
-
-	private fun verifyUserIsLoggedIn() {
-		val user = FirebaseAuth.getInstance().currentUser
-//		user?.let {
-//			for (profile in it.providerData) {
-//				val uid = profile.uid
-//				val provider = profile.providerId
-//			}
-//		}
-		if(user?.uid == null){
-			val intent = Intent(this, SignInActivity::class.java)
-			intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-			startActivity(intent)
-			overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-		} else { }
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem?): Boolean {

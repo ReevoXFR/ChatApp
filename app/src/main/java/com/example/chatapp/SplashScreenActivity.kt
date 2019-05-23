@@ -3,6 +3,7 @@ package com.example.chatapp
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.example.chatapp.registration.SignInActivity
 import kotlinx.android.synthetic.main.activity_splash_screen.*
 
 
@@ -15,7 +16,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
 
         hoc_logo.setOnClickListener{
-            val intent = Intent(baseContext, MainMessagesActivity::class.java)
+            val intent = Intent(baseContext, SignInActivity::class.java)
                     startActivity(intent)
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
         }

@@ -40,6 +40,8 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
+        verifyUserIsLoggedIn()
+
         //Google
         firebaseAuth = FirebaseAuth.getInstance()
         configureGoogleSignIn()
@@ -54,7 +56,7 @@ class SignInActivity : AppCompatActivity() {
                     val intent = Intent(baseContext, MainMessagesActivity::class.java)
                     startActivity(intent)
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-                    saveUserToFirebaseDatabase()
+                    //saveUserToFirebaseDatabase()
                 }
                 override fun onCancel() {
                     Toast.makeText(baseContext, "Facebook sign in Cancel", Toast.LENGTH_LONG).show()
@@ -103,7 +105,7 @@ class SignInActivity : AppCompatActivity() {
             try {
                 val account = task.getResult(ApiException::class.java)
                 if (account != null) {
-                    saveUserToFirebaseDatabase()
+                    //saveUserToFirebaseDatabase()
                     firebaseAuthWithGoogle(account)
 
                 }
@@ -133,9 +135,26 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveUserToFirebaseDatabase() {
+    private fun verifyUserIsLoggedIn() {
+
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.let {
+            for (profile in it.providerData) {
+                val uid = profile.uid
+                val provider = profile.providerId
+            }
+        }
+        if(user?.uid != null){
+            val intent = Intent(this, MainMessagesActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        } else { Toast.makeText(this, "NULL UID", Toast.LENGTH_LONG)}
+    }
+
+    public fun saveUserToFirebaseDatabase() {
         val name = FirebaseAuth.getInstance().currentUser?.displayName.toString()
-        val uid = FirebaseAuth.getInstance().uid ?: ""
+        val uid = FirebaseAuth.getInstance().uid.toString()
         val profile = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
         val provider = FirebaseAuth.getInstance().currentUser?.providerId.toString()
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
@@ -145,10 +164,10 @@ class SignInActivity : AppCompatActivity() {
         ref.setValue(user)
             .addOnSuccessListener {
                 Log.d("RegisterActivity", "Finally we saved the user to Firebase Database")
-                    val intent = Intent(this, MainMessagesActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+//                    val intent = Intent(this, MainMessagesActivity::class.java)
+//                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                    startActivity(intent)
+//                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                 }
                 .addOnFailureListener {
                     Log.d("RegisterActivity", "Failed to set value to database: ${it.message}")
