@@ -17,7 +17,9 @@
 			android:supportsRtl="true"
 			android:theme="@style/AppTheme"
 			tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-		<activity android:name=".registration.ChatLogActivity">
+		<activity android:name=".models.UserProfileActivity">
+		</activity>
+		<activity android:name=".chatRooms.ChatLogActivity">
 		</activity>
 		<activity android:name=".NewUsersActivity">
 			<meta-data
