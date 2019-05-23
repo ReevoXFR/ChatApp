@@ -3,6 +3,7 @@ package com.example.chatapp
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.example.chatapp.registration.SignInActivity
 import kotlinx.android.synthetic.main.activity_splash_screen.*
 
 
