@@ -1,9 +1,11 @@
 package com.example.chatapp
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.chatapp.models.User
+import com.example.chatapp.models.UserProfileActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -21,22 +23,13 @@ class NewUsersActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_new_message)
 
-
-
 		supportActionBar?.title = "Select User"
-
-//		val adapter = GroupAdapter<ViewHolder>()
-//
-//		adapter.add(UserItem())
-//		adapter.add(UserItem())
-//		adapter.add(UserItem())
-//
-//		recyclerview_newmessage.adapter = adapter
-
 		fetchUsers()
 
+	}
 
-
+	companion object{
+		val USER_KEY = "USER_KEY"
 	}
 
 	private fun fetchUsers(){
@@ -53,6 +46,17 @@ class NewUsersActivity : AppCompatActivity() {
 						adapter.add(UserItem(user))
 					}
 				}
+
+				adapter.setOnItemClickListener{ item, view ->
+
+					val userItem = item as UserItem
+
+					val intent = Intent(view.context, UserProfileActivity::class.java)
+					intent.putExtra(USER_KEY,userItem.user)
+					startActivity(intent)
+				}
+
+
 				recyclerview_newmessage.adapter = adapter
 			}
 

@@ -1,4 +1,4 @@
-package com.example.chatapp.registration
+package com.example.chatapp.chatRooms
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle

@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import com.example.chatapp.registration.ChatLogActivity
+import com.example.chatapp.chatRooms.ChatLogActivity
 import com.example.chatapp.registration.SignInActivity
 import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
