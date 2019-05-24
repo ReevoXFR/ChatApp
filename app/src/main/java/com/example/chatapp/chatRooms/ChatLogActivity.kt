@@ -97,7 +97,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 		//val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl
 		val text = chatLog_writeText.text.toString()
-		val fromId = FirebaseAuth.getInstance().uid
+		val fromId = FirebaseAuth.getInstance().uid.toString()
 		val toId = ChatLogActivity.toString()
 
 
@@ -110,7 +110,14 @@ class ChatLogActivity : AppCompatActivity() {
 		reference.setValue(chatMessage)
 			.addOnSuccessListener {
 				Log.d(TAG, "Saved message: ${reference.key }")
+				chatLog_writeText.text.clear()
+				recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 			}
+
+		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/latest-messages/")
+
+		latestMessagesRef.setValue(chatMessage)
+
 	}
 
 }
@@ -123,7 +130,7 @@ class ChatFromItem(private val text: String, val firebaseUser: FirebaseUser): It
 		viewHolder.itemView.textView_from_row.text = text
 
 		val uri = firebaseUser
-		val targetImageLocation = viewHolder.itemView.imageView_fromRow
+		//val targetImageLocation = viewHolder.itemView.imageView_fromRow
 
 		//Picasso.get().load(photoUrl).into(targetImageLocation)
 	}
