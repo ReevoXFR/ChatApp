@@ -1,8 +1,10 @@
 package com.example.chatapp.chatRooms
 
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.example.chatapp.R
 import com.example.chatapp.models.ChatMessage
 import com.google.firebase.auth.FirebaseAuth
@@ -66,7 +68,13 @@ class ChatLogActivity : AppCompatActivity() {
 						adapter.add(ChatToItem(chatMessage.text, user!!))
 					}   else {
 
-						adapter.add(ChatFromItem(chatMessage.text, user!!))
+						adapter.add(ChatFromItem(chatMessage.text, chatMessage.fromId, chatMessage.photoUrl))
+
+
+						val chatPartnerId = chatMessage.fromId
+
+						val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
+						Toast.makeText(baseContext, "FROM: ${chatMessage.photoUrl}", Toast.LENGTH_LONG).show()
 					}
 
 
@@ -95,7 +103,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 	private fun performSendMessage(){
 
-		//val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl
+		val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
 		val text = chatLog_writeText.text.toString()
 		val fromId = FirebaseAuth.getInstance().uid.toString()
 		val toId = ChatLogActivity.toString()
@@ -105,7 +113,7 @@ class ChatLogActivity : AppCompatActivity() {
 		val reference = FirebaseDatabase.getInstance().getReference("/messages").push()
 
 		if(fromId == null) return
-		val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000)
+		val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
 
 		reference.setValue(chatMessage)
 			.addOnSuccessListener {
@@ -125,14 +133,14 @@ class ChatLogActivity : AppCompatActivity() {
 
 
 
-class ChatFromItem(private val text: String, val firebaseUser: FirebaseUser): Item<ViewHolder>() {
+class ChatFromItem(private val text: String, val fromId: String, private val photoUrl: String): Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 		viewHolder.itemView.textView_from_row.text = text
 
-		val uri = firebaseUser
-		//val targetImageLocation = viewHolder.itemView.imageView_fromRow
+		val uri = Uri.parse(photoUrl)
+		val targetImageLocation = viewHolder.itemView.imageView_fromRow
 
-		//Picasso.get().load(photoUrl).into(targetImageLocation)
+		Picasso.get().load(uri).into(targetImageLocation)
 	}
 
 	override fun getLayout(): Int {
@@ -146,6 +154,7 @@ class ChatToItem(private val text: String, val firebaseUser: FirebaseUser): Item
 
 		val uri = firebaseUser.photoUrl
 		val targetImageLocation = viewHolder.itemView.imageView_fromRow
+
 
 		Picasso.get().load(uri).into(targetImageLocation)
 
