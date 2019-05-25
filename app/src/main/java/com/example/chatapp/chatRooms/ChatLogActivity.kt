@@ -5,8 +5,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.example.chatapp.NewUsersActivity
 import com.example.chatapp.R
-import com.example.chatapp.models.ChatMessage
+import com.example.chatapp.models.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.ChildEventListener
@@ -29,14 +30,17 @@ class ChatLogActivity : AppCompatActivity() {
 	}
 
 	val adapter = GroupAdapter<ViewHolder>()
+	lateinit var extra: String
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_chat_log)
 
+		extra = intent.getStringExtra("ROOM_KEY")
 		recyclerView_chatLog.adapter = adapter
+		Toast.makeText(this, "EXTRA: $extra", Toast.LENGTH_LONG).show()
 
-		supportActionBar?.title = "Chat Logs v2"
+		supportActionBar?.title = extra
 		//setupFakeChat()
 
 		listenForMessages()
@@ -51,9 +55,8 @@ class ChatLogActivity : AppCompatActivity() {
 	}
 
 	private fun listenForMessages(){
-		val ref = FirebaseDatabase.getInstance().getReference("/messages")
-
-
+		extra = intent.getStringExtra("ROOM_KEY")!!
+		val ref = FirebaseDatabase.getInstance().getReference("/messages/$extra")
 
 		ref.addChildEventListener(object: ChildEventListener{
 
@@ -69,12 +72,12 @@ class ChatLogActivity : AppCompatActivity() {
 					}   else {
 
 						adapter.add(ChatFromItem(chatMessage.text, chatMessage.fromId, chatMessage.photoUrl))
-
+						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 
 						val chatPartnerId = chatMessage.fromId
 
 						val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
-						Toast.makeText(baseContext, "FROM: ${chatMessage.photoUrl}", Toast.LENGTH_LONG).show()
+						//Toast.makeText(baseContext, "FROM: ${chatMessage.photoUrl}", Toast.LENGTH_LONG).show()
 					}
 
 
@@ -103,6 +106,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 	private fun performSendMessage(){
 
+		extra = intent.getStringExtra("ROOM_KEY")!!
 		val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
 		val text = chatLog_writeText.text.toString()
 		val fromId = FirebaseAuth.getInstance().uid.toString()
@@ -110,7 +114,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 
 
-		val reference = FirebaseDatabase.getInstance().getReference("/messages").push()
+		val reference = FirebaseDatabase.getInstance().getReference("/messages/$extra").push()
 
 		if(fromId == null) return
 		val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
@@ -122,10 +126,11 @@ class ChatLogActivity : AppCompatActivity() {
 				recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 			}
 
-		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/latest-messages/")
+		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$extra")
 
 		latestMessagesRef.setValue(chatMessage)
 
+		Toast.makeText(this,"position: " + adapter.getAdapterPosition(DevChatRoom()), Toast.LENGTH_LONG).show()
 	}
 
 }
