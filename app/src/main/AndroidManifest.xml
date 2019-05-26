@@ -34,6 +34,15 @@
 					android:value=".MainMessagesActivity"/>
 		</activity>
 		<activity android:name=".MainMessagesActivity">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.BROWSABLE"/>
+				<data
+						android:host="example.com"
+						android:scheme="https"
+						android:pathPrefix="/deepLink"/>
+			</intent-filter>
 		</activity>
 		<activity android:name=".registration.SignInActivity">
 		</activity>

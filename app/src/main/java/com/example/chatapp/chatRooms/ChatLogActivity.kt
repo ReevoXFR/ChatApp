@@ -1,8 +1,11 @@
 package com.example.chatapp.chatRooms
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.NotificationCompat
 import android.util.Log
 import android.widget.Toast
 import com.example.chatapp.NewUsersActivity
@@ -14,6 +17,8 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.dynamiclinks.DynamicLink
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
@@ -22,6 +27,9 @@ import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.chat_from_row.view.*
 import kotlinx.android.synthetic.main.chat_from_row.view.imageView_fromRow
 import kotlinx.android.synthetic.main.chat_to_row.view.*
+import android.R
+
+
 
 class ChatLogActivity : AppCompatActivity() {
 
@@ -85,34 +93,58 @@ class ChatLogActivity : AppCompatActivity() {
 
 			}
 
-			override fun onCancelled(p0: DatabaseError) {
+			override fun onCancelled(p0: DatabaseError) {}
 
-			}
+			override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
 
-			override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+			override fun onChildMoved(p0: DataSnapshot, p1: String?) {}
 
-			}
-
-			override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-			}
-
-			override fun onChildRemoved(p0: DataSnapshot) {
-
-			}
+			override fun onChildRemoved(p0: DataSnapshot) {}
 
 		})
 	}
 
+	private fun createDeepLink(){
+
+//		val args = Bundle()
+//		args.putString("argument", "value")
+//		val deeplink = Navigation.findNavController(it).createDeepLink()
+//			.setDestination(com.example.chatapp.R.id.nav_deeplink)
+//			.setArguments(args)
+//			.createPendingIntent()
+//
+//
+//		val dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
+//			.setLink(Uri.parse("https://www.example.com/"))
+//			.setDomainUriPrefix("https://example.page.link")
+//			// Open links with this app on Android
+//			.setAndroidParameters(DynamicLink.AndroidParameters.Builder().build())
+//			// Open links with com.example.ios on iOS
+//			.setIosParameters(DynamicLink.IosParameters.Builder("com.example.ios").build())
+//			.buildDynamicLink()
+//
+//		val dynamicLinkUri = dynamicLink.uri
+//
+//		Toast.makeText(this, dynamicLinkUri.toString(), Toast.LENGTH_LONG).show()
+
+//		val pendingIntent = NavDeepLinkBuilder(context)
+//			.setGraph(R.navigation.nav_graph)
+//			.setDestination(R.id.android)
+//			.setArguments(args)
+//			.createPendingIntent()
+//
+//		Toast.makeText(this, dynamicLinkUri.toString(), Toast.LENGTH_LONG).show()
+	}
+
 	private fun performSendMessage(){
+
+		createDeepLink()
 
 		extra = intent.getStringExtra("ROOM_KEY")!!
 		val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
 		val text = chatLog_writeText.text.toString()
 		val fromId = FirebaseAuth.getInstance().uid.toString()
 		val toId = ChatLogActivity.toString()
-
-
 
 		val reference = FirebaseDatabase.getInstance().getReference("/messages/$extra").push()
 
@@ -130,7 +162,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 		latestMessagesRef.setValue(chatMessage)
 
-		Toast.makeText(this,"position: " + adapter.getAdapterPosition(DevChatRoom()), Toast.LENGTH_LONG).show()
+		//Toast.makeText(this,"position: " + adapter.getAdapterPosition(DevChatRoom()), Toast.LENGTH_LONG).show()
 	}
 
 }

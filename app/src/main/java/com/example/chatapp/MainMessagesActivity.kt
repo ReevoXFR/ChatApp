@@ -2,6 +2,7 @@ package com.example.chatapp
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -24,6 +25,14 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_main_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
+import android.support.annotation.NonNull
+import android.util.Log
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+
+
 
 
 class MainMessagesActivity : AppCompatActivity() {
@@ -35,17 +44,34 @@ class MainMessagesActivity : AppCompatActivity() {
 
 		loadChatRooms()
 		listenForLatestMessages()
-
+		listenForDeepLinks()
 
 		recyclerView_latest_messages.adapter = adapter
 
 
-		val devRoom = DevChatRoom()
-		val funRoom = FunChatRoom()
-		val scienceRoom = ScienceChatRoom()
-
 		val cls2 = SignInActivity()
 		cls2.saveUserToFirebaseDatabase()
+	}
+
+	private fun listenForDeepLinks(){
+		FirebaseDynamicLinks.getInstance()
+			.getDynamicLink(intent)
+			.addOnSuccessListener(this
+				) { pendingDynamicLinkData ->
+		// Get deep link from result (may be null if no link is found)
+		var deepLink: Uri? = null
+		if (pendingDynamicLinkData != null) {
+			deepLink = pendingDynamicLinkData!!.link
+		}
+
+
+		Toast.makeText(this, "Deeplink: $deepLink", Toast.LENGTH_LONG).show()
+	}
+			.addOnFailureListener(this, object:OnFailureListener {
+		override fun onFailure(e:Exception) {
+		Log.w("Deep Link", "getDynamicLink:onFailure", e)
+		}
+		})
 	}
 
 
