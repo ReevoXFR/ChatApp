@@ -38,7 +38,8 @@
 		android:layout_height="0dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintBottom_toTopOf="@+id/navigation" android:id="@+id/recyclerView_latest_messages"/>
+		app:layout_constraintBottom_toTopOf="@+id/navigation" android:id="@+id/recyclerView_latest_messages"
+		/>
 
 	</android.support.v4.widget.SwipeRefreshLayout>
 
