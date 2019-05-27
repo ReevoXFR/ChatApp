@@ -20,6 +20,9 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_main_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 import com.google.firebase.database.FirebaseDatabase
+import android.support.v4.widget.SwipeRefreshLayout
+
+
 
 
 
@@ -42,6 +45,11 @@ class MainMessagesActivity : AppCompatActivity() {
 
 		val cls2 = SignInActivity()
 		cls2.saveUserToFirebaseDatabase()
+
+		swipe_refresh.setOnRefreshListener {
+			loadChatRooms()
+			swipe_refresh.isRefreshing = false
+		}
 	}
 
 
