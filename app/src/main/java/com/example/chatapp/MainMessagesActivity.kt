@@ -19,6 +19,9 @@ import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_main_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
+import com.google.firebase.database.FirebaseDatabase
+
+
 
 
 
@@ -27,10 +30,13 @@ class MainMessagesActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main_messages)
+		//addChatRoom("Dev Room", "by Developers, for Developers!")
 		setupUI()
 
 		loadChatRooms()
 		//listenForLatestMessages()
+
+
 
 		recyclerView_latest_messages.adapter = adapter
 
@@ -38,40 +44,42 @@ class MainMessagesActivity : AppCompatActivity() {
 		cls2.saveUserToFirebaseDatabase()
 	}
 
+
+
 	companion object {
 		val ROOM_KEY = "ROOM_KEY"
 		fun getLaunchIntent(from: Context) = Intent(from, MainMessagesActivity::class.java).apply {
 			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 		}}
 
-	private fun listenForLatestMessages(){
-
-		val toId = ChatLogActivity.toString()
-		val ref = FirebaseDatabase.getInstance().getReference("/latest-messages")
-		ref.addChildEventListener(object: ChildEventListener{
-			override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-				//val chatMessage = p0.getValue(ChatMessage::class.java)
-					//adapter.add(DevChatRoom(chatMessage))
-			}
-
-			override fun onCancelled(p0: DatabaseError) {
-
-			}
-
-			override fun onChildChanged(p0: DataSnapshot, p1: String?) {
-
-			}
-
-			override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-
-			}
-
-			override fun onChildRemoved(p0: DataSnapshot) {
-
-			}
-		})
-
-	}
+//	private fun listenForLatestMessages(){
+//
+//		val toId = ChatLogActivity.toString()
+//		val ref = FirebaseDatabase.getInstance().getReference("/latest-messages")
+//		ref.addChildEventListener(object: ChildEventListener{
+//			override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+//				//val chatMessage = p0.getValue(ChatMessage::class.java)
+//					//adapter.add(DevChatRoom(chatMessage))
+//			}
+//
+//			override fun onCancelled(p0: DatabaseError) {
+//
+//			}
+//
+//			override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+//
+//			}
+//
+//			override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+//
+//			}
+//
+//			override fun onChildRemoved(p0: DataSnapshot) {
+//
+//			}
+//		})
+//
+//	}
 
 	private val adapter = GroupAdapter<ViewHolder>()
 
@@ -87,13 +95,12 @@ class MainMessagesActivity : AppCompatActivity() {
 
 	private fun loadChatRooms(){
 
-		val ref = FirebaseDatabase.getInstance().getReference("/rooms")
+		val ref = FirebaseDatabase.getInstance().getReference("/rooms").orderByChild("lastmessage")
 		ref.addListenerForSingleValueEvent(object: ValueEventListener {
 			override fun onDataChange(p0: DataSnapshot) {
 				val adapter = GroupAdapter<ViewHolder>()
 
-
-				p0.children.forEach{
+				p0.children.reversed().forEach{
 					val room = it.getValue(Room::class.java)
 					if(room != null) {
 						adapter.add(RoomItem(room))
@@ -101,23 +108,16 @@ class MainMessagesActivity : AppCompatActivity() {
 				}
 
 				adapter.setOnItemClickListener{ item, view ->
-
-					val roomItem =item as RoomItem
-
+					val roomItem = item as RoomItem
 					val intent = Intent(applicationContext, ChatLogActivity::class.java)
 					intent.putExtra(ROOM_KEY,roomItem.room)
 					startActivity(intent)
 				}
 
-
 				recyclerView_latest_messages.adapter = adapter
 			}
 
-			override fun onCancelled(p0: DatabaseError) {
-
-			}
-
-
+			override fun onCancelled(p0: DatabaseError) {}
 		})
 	}
 
@@ -147,9 +147,9 @@ class MainMessagesActivity : AppCompatActivity() {
 
 	private fun sortChats(){
 
-		val chats: ArrayList<ChatMessage> = ArrayList()
-
-		//chats.add()
+		val rootRef = FirebaseDatabase.getInstance().reference
+		val uid = FirebaseAuth.getInstance().currentUser!!.uid
+		val query = rootRef.child("patient's_heart_rate").child(uid).orderByChild("heartRateTimeStamp")
 
 	}
 

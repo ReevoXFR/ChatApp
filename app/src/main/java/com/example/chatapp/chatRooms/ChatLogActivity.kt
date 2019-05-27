@@ -126,9 +126,9 @@ class ChatLogActivity : AppCompatActivity() {
 				recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 			}
 
-		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$key")
+		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/lastmessage/")
 
-		latestMessagesRef.setValue(chatMessage)
+		latestMessagesRef.setValue(chatMessage.time)
 
 		Toast.makeText(this,"position: " + adapter.getAdapterPosition(DevChatRoom()), Toast.LENGTH_LONG).show()
 	}
