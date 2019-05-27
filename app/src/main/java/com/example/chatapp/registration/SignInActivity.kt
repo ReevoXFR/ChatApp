@@ -121,6 +121,8 @@ class SignInActivity : AppCompatActivity() {
                 }, 4500 // value in milliseconds
             )
         }
+
+
     }
 
     private fun configureGoogleSignIn() {
