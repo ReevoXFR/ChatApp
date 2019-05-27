@@ -5,6 +5,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -49,6 +50,7 @@ class SignInActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sign_in)
 
         Glide.with(applicationContext).load(R.drawable.loading).into(loader_image_view)
+        Glide.with(applicationContext).load(R.drawable.live_bg).into(sing_in_activity_background)
 
         //Google
         firebaseAuth = FirebaseAuth.getInstance()
@@ -59,8 +61,8 @@ class SignInActivity : AppCompatActivity() {
         // Initialize Facebook Login button
         callbackManager = CallbackManager.Factory.create()
 
-        login_button.setReadPermissions("email", "public_profile")
-        login_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+        facebook_button.setReadPermissions("email", "public_profile")
+        facebook_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
                 Log.d(TAG, "facebook:onSuccess:$loginResult")
                 handleFacebookAccessToken(loginResult.accessToken)
@@ -68,7 +70,7 @@ class SignInActivity : AppCompatActivity() {
 
             override fun onCancel() {
                 Log.d(TAG, "facebook:onCancel")
-                // ...
+	            buildDialog("Facebook")
             }
 
             override fun onError(error: FacebookException) {
@@ -100,13 +102,26 @@ class SignInActivity : AppCompatActivity() {
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    //updateUI(null)
                 }
 
                 // ...
             }
+    }
+
+    private fun buildDialog(provider: String){
+
+        val dialog = AlertDialog.Builder(this)
+        dialog.setCancelable(false)
+        dialog.setTitle("$provider login error")
+        dialog.setMessage("Please try again!")
+        // Display a neutral button on alert dialog
+        dialog.setNeutralButton("Ok - I will retry"){_,_ ->
+            Toast.makeText(this,"Ok.",Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.create()
+        dialog.show()
+
     }
 
     private fun showSplashScreen(boolean: Boolean){
@@ -118,7 +133,7 @@ class SignInActivity : AppCompatActivity() {
                 {
                     val aniFade = AnimationUtils.loadAnimation(applicationContext,R.anim.fade_out)
                     splash_screen.startAnimation(aniFade)
-                }, 4500 // value in milliseconds
+                }, 6000 // value in milliseconds
             )
         }
 
