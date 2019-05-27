@@ -1,12 +1,11 @@
-package com.example.chatapp.chatRooms
+package com.example.chatapp.activities
 
+import android.content.Context
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import com.example.chatapp.MainMessagesActivity
-import com.example.chatapp.NewUsersActivity
+import com.bumptech.glide.Glide
 import com.example.chatapp.R
 import com.example.chatapp.models.*
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +14,6 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
@@ -37,7 +35,7 @@ class ChatLogActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_chat_log)
 
-		val extra = intent.getParcelableExtra<Room>(MainMessagesActivity.ROOM_KEY)
+		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 
 		//extra = intent.getStringExtra("ROOM_KEY")!!
 		recyclerView_chatLog.adapter = adapter
@@ -54,24 +52,24 @@ class ChatLogActivity : AppCompatActivity() {
 
 
 	private fun listenForMessages(){
-		val extra = intent.getParcelableExtra<Room>(MainMessagesActivity.ROOM_KEY)
+		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
 		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToFirst(50)
 
 		ref.addChildEventListener(object: ChildEventListener{
 
 			override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-				val chatMessage = p0.getValue(ChatMessage::class.java)
+				val chatMessage = p0.getValue(ChatTextMessage::class.java)
 				val user = FirebaseAuth.getInstance().currentUser
 
 				if(chatMessage != null){
 					Log.d(TAG, chatMessage.text)
 
 					if(chatMessage.fromId == FirebaseAuth.getInstance().uid){
-						adapter.add(ChatToItem(chatMessage.text, user!!))
+						adapter.add(ChatToItem(chatMessage.text, user!!, applicationContext))
 					}   else {
 
-						adapter.add(ChatFromItem(chatMessage.text, chatMessage.fromId, chatMessage.photoUrl))
+						adapter.add(ChatFromItem(chatMessage.text, chatMessage.fromId, chatMessage.photoUrl, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 
 						val chatPartnerId = chatMessage.fromId
@@ -106,7 +104,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 	private fun performSendMessage(){
 
-		val extra = intent.getParcelableExtra<Room>(MainMessagesActivity.ROOM_KEY)
+		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
 		val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
 		val text = chatLog_writeText.text.toString()
@@ -117,7 +115,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 		val reference = FirebaseDatabase.getInstance().getReference("/messages/$key").push()
 
-		val chatMessage = ChatMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
+		val chatMessage = ChatTextMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
 
 		reference.setValue(chatMessage)
 			.addOnSuccessListener {
@@ -126,11 +124,9 @@ class ChatLogActivity : AppCompatActivity() {
 				recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 			}
 
-		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/lastmessage/")
+		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/timestamp/")
 
 		latestMessagesRef.setValue(chatMessage.time)
-
-		Toast.makeText(this,"position: " + adapter.getAdapterPosition(DevChatRoom()), Toast.LENGTH_LONG).show()
 	}
 
 }
@@ -138,14 +134,14 @@ class ChatLogActivity : AppCompatActivity() {
 
 
 
-class ChatFromItem(private val text: String, val fromId: String, private val photoUrl: String): Item<ViewHolder>() {
+class ChatFromItem(private val text: String, val fromId: String, private val photoUrl: String, private val context: Context): Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 		viewHolder.itemView.textView_from_row.text = text
 
 		val uri = Uri.parse(photoUrl)
 		val targetImageLocation = viewHolder.itemView.imageView_fromRow
 
-		Picasso.get().load(uri).into(targetImageLocation)
+		Glide.with(context).load(uri).into(targetImageLocation)
 	}
 
 	override fun getLayout(): Int {
@@ -153,15 +149,14 @@ class ChatFromItem(private val text: String, val fromId: String, private val pho
 	}
 }
 
-class ChatToItem(private val text: String, val firebaseUser: FirebaseUser): Item<ViewHolder>() {
+class ChatToItem(private val text: String, val firebaseUser: FirebaseUser, private val context: Context): Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 		viewHolder.itemView.textView_to_row.text = text
 
 		val uri = firebaseUser.photoUrl
 		val targetImageLocation = viewHolder.itemView.imageView_fromRow
 
-
-		Picasso.get().load(uri).into(targetImageLocation)
+		Glide.with(context).load(uri).into(targetImageLocation)
 
 	}
 

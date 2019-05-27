@@ -1,9 +1,9 @@
-package com.example.chatapp.models
+package com.example.chatapp.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.example.chatapp.NewUsersActivity
 import com.example.chatapp.R
+import com.example.chatapp.models.User
 
 class UserProfileActivity : AppCompatActivity() {
 
