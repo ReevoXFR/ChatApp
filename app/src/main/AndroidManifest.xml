@@ -71,13 +71,6 @@
 			</intent-filter>
 		</activity>
 
-		<activity
-				android:name=".SplashScreenActivity"
-				android:noHistory="true"
-				android:theme="@style/SplashScreenTheme">
-		</activity>
-
-
 	</application>
 
 </manifest>

@@ -9,21 +9,17 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.example.chatapp.chatRooms.ChatLogActivity
-import com.example.chatapp.models.ChatMessage
-import com.example.chatapp.models.DevChatRoom
-import com.example.chatapp.models.FunChatRoom
-import com.example.chatapp.models.ScienceChatRoom
+import com.example.chatapp.models.*
 import com.example.chatapp.registration.SignInActivity
 import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_main_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
+
 
 
 class MainMessagesActivity : AppCompatActivity() {
@@ -34,8 +30,7 @@ class MainMessagesActivity : AppCompatActivity() {
 		setupUI()
 
 		loadChatRooms()
-		listenForLatestMessages()
-
+		//listenForLatestMessages()
 
 		recyclerView_latest_messages.adapter = adapter
 
@@ -43,7 +38,11 @@ class MainMessagesActivity : AppCompatActivity() {
 		cls2.saveUserToFirebaseDatabase()
 	}
 
-
+	companion object {
+		val ROOM_KEY = "ROOM_KEY"
+		fun getLaunchIntent(from: Context) = Intent(from, MainMessagesActivity::class.java).apply {
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+		}}
 
 	private fun listenForLatestMessages(){
 
@@ -76,11 +75,63 @@ class MainMessagesActivity : AppCompatActivity() {
 
 	private val adapter = GroupAdapter<ViewHolder>()
 
+	private fun addChatRoom(title: String, description: String){
+
+		val reference = FirebaseDatabase.getInstance().getReference("/rooms").push()
+
+		val roomDetails = Room(reference.key!!, title, description)
+		reference.setValue(roomDetails)
+
+		//val uid: String, val username: String, val profileImageUrl: String
+	}
+
 	private fun loadChatRooms(){
 
-		adapter.add(DevChatRoom())
-		adapter.add(ScienceChatRoom())
-		adapter.add(FunChatRoom())
+		val ref = FirebaseDatabase.getInstance().getReference("/rooms")
+		ref.addListenerForSingleValueEvent(object: ValueEventListener {
+			override fun onDataChange(p0: DataSnapshot) {
+				val adapter = GroupAdapter<ViewHolder>()
+
+
+				p0.children.forEach{
+					val room = it.getValue(Room::class.java)
+					if(room != null) {
+						adapter.add(RoomItem(room))
+					}
+				}
+
+				adapter.setOnItemClickListener{ item, view ->
+
+					val roomItem =item as RoomItem
+
+					val intent = Intent(applicationContext, ChatLogActivity::class.java)
+					intent.putExtra(ROOM_KEY,roomItem.room)
+					startActivity(intent)
+				}
+
+
+				recyclerView_latest_messages.adapter = adapter
+			}
+
+			override fun onCancelled(p0: DatabaseError) {
+
+			}
+
+
+		})
+	}
+
+	class RoomItem(val room: Room): Item<ViewHolder>(){
+		override fun bind(viewHolder: ViewHolder, position: Int) {
+			viewHolder.itemView.group_name.text = room.title
+			viewHolder.itemView.group_description.text = room.description
+
+			//Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.profile_pic)
+		}
+
+		override fun getLayout(): Int {
+			return R.layout.latest_message_row
+		}
 	}
 
 	private fun setupUI(){
@@ -92,25 +143,6 @@ class MainMessagesActivity : AppCompatActivity() {
 			startActivity(intent)
 			overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
 		}
-
-		adapter.setOnItemClickListener{ item, view ->
-
-			if(view.group_name.text == " Dev Group"){
-				//Toast.makeText(this, "" + view.group_name.text.toString(), Toast.LENGTH_LONG).show()
-				openRoom(view.group_name.text.toString(), view)
-			}
-
-			if(view.group_name.text == " Fun Group"){
-				//Toast.makeText(this, "" + view.group_name.text.toString(), Toast.LENGTH_LONG).show()
-				openRoom(view.group_name.text.toString(), view)
-			}
-
-			if(view.group_name.text == " Science Group"){
-				//Toast.makeText(this, "" + view.group_name.text.toString(), Toast.LENGTH_LONG).show()
-				openRoom(view.group_name.text.toString(), view)
-			}
-		}
-
 	}
 
 	private fun sortChats(){
@@ -124,7 +156,7 @@ class MainMessagesActivity : AppCompatActivity() {
 	private fun openRoom(roomKey: String, view: View){
 		intent = Intent(this, ChatLogActivity::class.java)
 		val roomKey = view.group_name.text
-		intent.putExtra(room_key, roomKey)
+		intent.putExtra(ROOM_KEY, roomKey)
 		startActivity(intent)
 	}
 
@@ -156,11 +188,5 @@ class MainMessagesActivity : AppCompatActivity() {
 		return super.onCreateOptionsMenu(menu)
 	}
 
-	companion object {
-		const val room_key = "ROOM_KEY"
-		fun getLaunchIntent(from: Context) = Intent(from, MainMessagesActivity::class.java).apply {
-			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-		}
-	}
 }
 

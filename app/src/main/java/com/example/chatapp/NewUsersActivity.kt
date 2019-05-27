@@ -72,7 +72,7 @@ class NewUsersActivity : AppCompatActivity() {
 		override fun bind(viewHolder: ViewHolder, position: Int) {
 			viewHolder.itemView.username.text = user.username
 
-			Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.profile_pic)
+			//Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.profile_pic)
 		}
 
 		override fun getLayout(): Int {
