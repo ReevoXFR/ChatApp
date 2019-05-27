@@ -39,11 +39,6 @@ class MainMessagesActivity : AppCompatActivity() {
 
 		recyclerView_latest_messages.adapter = adapter
 
-
-		val devRoom = DevChatRoom()
-		val funRoom = FunChatRoom()
-		val scienceRoom = ScienceChatRoom()
-
 		val cls2 = SignInActivity()
 		cls2.saveUserToFirebaseDatabase()
 	}

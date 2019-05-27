@@ -4,8 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
+import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.example.chatapp.MainMessagesActivity
 import com.example.chatapp.R
 import com.example.chatapp.models.User
@@ -23,7 +27,6 @@ import kotlinx.android.synthetic.main.activity_sign_in.*
 import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import com.facebook.FacebookCallback
-import com.facebook.login.LoginManager
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.database.FirebaseDatabase
 
@@ -39,12 +42,13 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var firebaseAuth: FirebaseAuth
     val TAG = "SignInActivity"
     var auth: FirebaseAuth = FirebaseAuth.getInstance()
+    var isLoading = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-        verifyUserIsLoggedIn()
+        Glide.with(applicationContext).load(R.drawable.loading).into(loader_image_view)
 
         //Google
         firebaseAuth = FirebaseAuth.getInstance()
@@ -73,9 +77,9 @@ class SignInActivity : AppCompatActivity() {
             }
         })
 
-
-
-
+        if(!isLoading){
+            showSplashScreen(false)
+        }
 
     }
 
@@ -105,6 +109,20 @@ class SignInActivity : AppCompatActivity() {
             }
     }
 
+    private fun showSplashScreen(boolean: Boolean){
+
+        if(boolean){
+            splash_screen.visibility = View.VISIBLE
+        }   else if(!boolean){
+            Handler().postDelayed(
+                {
+                    val aniFade = AnimationUtils.loadAnimation(applicationContext,R.anim.fade_out)
+                    splash_screen.startAnimation(aniFade)
+                }, 4500 // value in milliseconds
+            )
+        }
+    }
+
     private fun configureGoogleSignIn() {
         mGoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -117,6 +135,8 @@ class SignInActivity : AppCompatActivity() {
         google_button.setOnClickListener {
             signInGoogle()
         }
+
+        isLoading = false
     }
 
     override fun onStart() {
