@@ -49,8 +49,10 @@ class SignInActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sign_in)
         showSplashScreen()
 
-        Glide.with(applicationContext).load(R.drawable.loading).into(loader_image_view)
+        Glide.with(applicationContext).load(R.drawable.loaders_ball).into(loader_image_view)
         Glide.with(applicationContext).load(R.drawable.live_bg).into(sing_in_activity_background)
+
+
 
         //Google
         firebaseAuth = FirebaseAuth.getInstance()
