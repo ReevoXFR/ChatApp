@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
-import com.example.chatapp.R
 import com.example.chatapp.models.*
 import com.example.chatapp.registration.SignInActivity
 import com.facebook.login.LoginManager
@@ -20,6 +18,11 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_main_groups.*
 import kotlinx.android.synthetic.main.group_row.view.*
 import com.google.firebase.database.FirebaseDatabase
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
+import com.example.chatapp.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 
 class MainGroupsActivity : AppCompatActivity() {
@@ -143,9 +146,23 @@ class MainGroupsActivity : AppCompatActivity() {
 	}
 
 	private fun signOut() {
-		Toast.makeText(this, "Signing out...", Toast.LENGTH_LONG).show()
+
+		// Firebase sign out
 		LoginManager.getInstance().logOut()
 		FirebaseAuth.getInstance().signOut()
+
+
+		val mGoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+			.requestIdToken(getString(R.string.default_web_client_id))
+			.requestEmail()
+			.build()
+		val mGoogleSignInClient = GoogleSignIn.getClient(this, mGoogleSignInOptions)
+
+		// Google sign out
+		mGoogleSignInClient.signOut().addOnCompleteListener(this) { }
+
+
+		Toast.makeText(this, "Signing out...", Toast.LENGTH_LONG).show()
 		val intent = Intent(this, SignInActivity::class.java)
 		startActivity(intent)
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
