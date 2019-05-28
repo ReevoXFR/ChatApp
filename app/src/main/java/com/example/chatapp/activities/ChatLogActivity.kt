@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.bumptech.glide.Glide
-import com.example.chatapp.R
 import com.example.chatapp.models.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -21,7 +20,10 @@ import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.chat_from_row.view.*
 import kotlinx.android.synthetic.main.chat_from_row.view.imageView_fromRow
 import kotlinx.android.synthetic.main.chat_to_row.view.*
-
+import android.widget.Toast
+import android.view.KeyEvent
+import android.view.View
+import com.example.chatapp.R
 
 
 class ChatLogActivity : AppCompatActivity() {
@@ -46,6 +48,19 @@ class ChatLogActivity : AppCompatActivity() {
 			Log.d(TAG, "Attempt to send message...")
 			performSendMessage()
 		}
+
+		chatLog_writeText.setOnKeyListener(object : View.OnKeyListener {
+			override fun onKey(v: View, keyCode: Int, event: KeyEvent): Boolean {
+				// If the event is a key-down event on the "enter" button
+				if (event.getAction() === KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+					// Perform action on key press
+					Toast.makeText(applicationContext, chatLog_writeText.text, Toast.LENGTH_SHORT).show()
+					performSendMessage()
+					return true
+				}
+				return false
+			}
+		})
 
 
 	}
