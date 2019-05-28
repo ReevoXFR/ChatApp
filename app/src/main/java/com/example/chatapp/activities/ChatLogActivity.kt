@@ -18,12 +18,15 @@ import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.chat_from_row.view.*
-import kotlinx.android.synthetic.main.chat_from_row.view.imageView_fromRow
+import kotlinx.android.synthetic.main.chat_from_row.view.imageView_toRow
 import kotlinx.android.synthetic.main.chat_to_row.view.*
 import android.widget.Toast
 import android.view.KeyEvent
 import android.view.View
 import com.example.chatapp.R
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class ChatLogActivity : AppCompatActivity() {
@@ -69,7 +72,7 @@ class ChatLogActivity : AppCompatActivity() {
 	private fun listenForMessages(){
 		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
-		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToFirst(50)
+		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToLast(50)
 
 		ref.addChildEventListener(object: ChildEventListener{
 
@@ -81,10 +84,9 @@ class ChatLogActivity : AppCompatActivity() {
 					Log.d(TAG, chatMessage.text)
 
 					if(chatMessage.fromId == FirebaseAuth.getInstance().uid){
-						adapter.add(ChatToItem(chatMessage.text, user!!, applicationContext))
+						adapter.add(ChatToItem(chatMessage.text, user!!, chatMessage.time, applicationContext))
 					}   else {
-
-						adapter.add(ChatFromItem(chatMessage.text, chatMessage.fromId, chatMessage.photoUrl, applicationContext))
+						adapter.add(ChatFromItem(chatMessage.text,user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 
 						val chatPartnerId = chatMessage.fromId
@@ -132,16 +134,18 @@ class ChatLogActivity : AppCompatActivity() {
 
 		val chatMessage = ChatTextMessage(reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
 
-		reference.setValue(chatMessage)
-			.addOnSuccessListener {
-				Log.d(TAG, "Saved message: ${reference.key }")
-				chatLog_writeText.text.clear()
-				recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
-			}
+		if(chatLog_writeText.text.isNotEmpty()) {
+			reference.setValue(chatMessage)
+				.addOnSuccessListener {
+					Log.d(TAG, "Saved message: ${reference.key}")
+					chatLog_writeText.text.clear()
+					recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
+				}
+
 
 		val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/timestamp/")
 
-		latestMessagesRef.setValue(chatMessage.time)
+		latestMessagesRef.setValue(chatMessage.time)}
 	}
 
 }
@@ -149,12 +153,21 @@ class ChatLogActivity : AppCompatActivity() {
 
 
 
-class ChatFromItem(private val text: String, val fromId: String, private val photoUrl: String, private val context: Context): Item<ViewHolder>() {
+class ChatFromItem(private val text: String, val username: String, val fromId: String, private val photoUrl: String, val time: Long , private val context: Context): Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
+
+		val day = TimeUnit.SECONDS.toDays(time)
+        val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
+        val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
+        val second = TimeUnit.SECONDS.toSeconds(time) - (TimeUnit.SECONDS.toMinutes(time) *60)
+
 		viewHolder.itemView.textView_from_row.text = text
+		viewHolder.itemView.chat_message_username.text = username
+		viewHolder.itemView.chat_message_timestamp.text = "$hours:$minute"
 
 		val uri = Uri.parse(photoUrl)
-		val targetImageLocation = viewHolder.itemView.imageView_fromRow
+		val targetImageLocation = viewHolder.itemView.imageView_toRow
+
 
 		Glide.with(context).load(uri).into(targetImageLocation)
 	}
@@ -164,12 +177,21 @@ class ChatFromItem(private val text: String, val fromId: String, private val pho
 	}
 }
 
-class ChatToItem(private val text: String, val firebaseUser: FirebaseUser, private val context: Context): Item<ViewHolder>() {
+class ChatToItem(private val text: String, val firebaseUser: FirebaseUser, val time: Long, private val context: Context): Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
+
+		val day = TimeUnit.SECONDS.toDays(time)
+		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
+		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
+		val second = TimeUnit.SECONDS.toSeconds(time) - (TimeUnit.SECONDS.toMinutes(time) *60)
+
+
 		viewHolder.itemView.textView_to_row.text = text
+		viewHolder.itemView.chat_message_username_toRow.text = firebaseUser.displayName
+		viewHolder.itemView.chat_message_timestamp_toRow.text = "$hours:$minute"
 
 		val uri = firebaseUser.photoUrl
-		val targetImageLocation = viewHolder.itemView.imageView_fromRow
+		val targetImageLocation = viewHolder.itemView.imageView_toRow
 
 		Glide.with(context).load(uri).into(targetImageLocation)
 
