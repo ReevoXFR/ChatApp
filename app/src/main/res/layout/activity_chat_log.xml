@@ -3,15 +3,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<android.support.v7.widget.RecyclerView
-			android:id="@+id/recyclerView_chatLog"
-			app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+	<android.support.v4.widget.SwipeRefreshLayout
+			android:id="@+id/swipe_load_more_messages"
 			android:layout_width="match_parent"
-			android:layout_marginBottom="60dp"
-			android:layout_height="match_parent"
-	android:background="@color/com_facebook_button_background_color_disabled"/>
+			android:layout_height="500dp" android:layout_above="@+id/fragment_chat_log_navigation"
+			android:layout_alignParentTop="true">
+
+		<android.support.v7.widget.RecyclerView
+				android:id="@+id/recyclerView_chatLog"
+				app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="@color/com_facebook_button_background_color_disabled"/>
+
+	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<FrameLayout
+			android:id="@+id/fragment_chat_log_navigation"
 			android:layout_width="match_parent"
 			android:layout_height="?attr/actionBarSize"
 			android:layout_alignParentBottom="true">
@@ -36,5 +44,9 @@
 
 		</LinearLayout>
 	</FrameLayout>
+
+
+
+
 
 </RelativeLayout>
