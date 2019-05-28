@@ -35,6 +35,8 @@ class ChatLogActivity : AppCompatActivity() {
 		val TAG = "ChatLogActivity"
 	}
 
+	var counter = 1
+
 	val adapter = GroupAdapter<ViewHolder>()
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -45,7 +47,10 @@ class ChatLogActivity : AppCompatActivity() {
 		//extra = intent.getStringExtra("ROOM_KEY")!!
 		recyclerView_chatLog.adapter = adapter
 		supportActionBar?.title = extra.title
-		listenForMessages()
+		listenForMessages(counter)
+
+
+
 
 		chatLog_sendText.setOnClickListener {
 			Log.d(TAG, "Attempt to send message...")
@@ -65,14 +70,24 @@ class ChatLogActivity : AppCompatActivity() {
 			}
 		})
 
+		swipe_load_more_messages.setOnRefreshListener {
+
+			counter += 1
+			adapter.clear()
+			listenForMessages(counter)
+
+
+
+			swipe_load_more_messages.isRefreshing = false
+		}
 
 	}
 
 
-	private fun listenForMessages(){
+	private fun listenForMessages(counter: Int){
 		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
-		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToLast(50)
+		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToLast(counter * 50)
 
 		ref.addChildEventListener(object: ChildEventListener{
 
@@ -85,6 +100,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 					if(chatMessage.fromId == FirebaseAuth.getInstance().uid){
 						adapter.add(ChatToItem(chatMessage.text, user!!, chatMessage.time, applicationContext))
+						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					}   else {
 						adapter.add(ChatFromItem(chatMessage.text,user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
