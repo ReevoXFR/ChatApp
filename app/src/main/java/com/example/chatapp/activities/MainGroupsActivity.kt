@@ -1,4 +1,4 @@
-package com.example.chatapp
+package com.example.chatapp.activities
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.example.chatapp.chatRooms.ChatLogActivity
+import com.example.chatapp.R
 import com.example.chatapp.models.*
 import com.example.chatapp.registration.SignInActivity
 import com.facebook.login.LoginManager
@@ -17,22 +17,16 @@ import com.google.firebase.database.*
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
-import kotlinx.android.synthetic.main.activity_main_messages.*
-import kotlinx.android.synthetic.main.latest_message_row.view.*
+import kotlinx.android.synthetic.main.activity_main_groups.*
+import kotlinx.android.synthetic.main.group_row.view.*
 import com.google.firebase.database.FirebaseDatabase
-import android.support.v4.widget.SwipeRefreshLayout
 
 
-
-
-
-
-
-class MainMessagesActivity : AppCompatActivity() {
+class MainGroupsActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_main_messages)
+		setContentView(R.layout.activity_main_groups)
 		//addChatRoom("Dev Room", "by Developers, for Developers!")
 		setupUI()
 
@@ -56,7 +50,7 @@ class MainMessagesActivity : AppCompatActivity() {
 
 	companion object {
 		val ROOM_KEY = "ROOM_KEY"
-		fun getLaunchIntent(from: Context) = Intent(from, MainMessagesActivity::class.java).apply {
+		fun getLaunchIntent(from: Context) = Intent(from, MainGroupsActivity::class.java).apply {
 			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 		}}
 
@@ -66,7 +60,7 @@ class MainMessagesActivity : AppCompatActivity() {
 //		val ref = FirebaseDatabase.getInstance().getReference("/latest-messages")
 //		ref.addChildEventListener(object: ChildEventListener{
 //			override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-//				//val chatMessage = p0.getValue(ChatMessage::class.java)
+//				//val chatMessage = p0.getValue(ChatTextMessage::class.java)
 //					//adapter.add(DevChatRoom(chatMessage))
 //			}
 //
@@ -103,7 +97,7 @@ class MainMessagesActivity : AppCompatActivity() {
 
 	private fun loadChatRooms(){
 
-		val ref = FirebaseDatabase.getInstance().getReference("/rooms").orderByChild("lastmessage")
+		val ref = FirebaseDatabase.getInstance().getReference("/rooms").orderByChild("timestamp")
 		ref.addListenerForSingleValueEvent(object: ValueEventListener {
 			override fun onDataChange(p0: DataSnapshot) {
 				val adapter = GroupAdapter<ViewHolder>()
@@ -133,39 +127,19 @@ class MainMessagesActivity : AppCompatActivity() {
 		override fun bind(viewHolder: ViewHolder, position: Int) {
 			viewHolder.itemView.group_name.text = room.title
 			viewHolder.itemView.group_description.text = room.description
-
-			//Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.profile_pic)
 		}
 
 		override fun getLayout(): Int {
-			return R.layout.latest_message_row
+			return R.layout.group_row
 		}
 	}
 
 	private fun setupUI(){
-
-		sortChats()
-
 		recyclerView_latest_messages.setOnClickListener {
 			intent = Intent(this, ChatLogActivity::class.java)
 			startActivity(intent)
 			overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
 		}
-	}
-
-	private fun sortChats(){
-
-		val rootRef = FirebaseDatabase.getInstance().reference
-		val uid = FirebaseAuth.getInstance().currentUser!!.uid
-		val query = rootRef.child("patient's_heart_rate").child(uid).orderByChild("heartRateTimeStamp")
-
-	}
-
-	private fun openRoom(roomKey: String, view: View){
-		intent = Intent(this, ChatLogActivity::class.java)
-		val roomKey = view.group_name.text
-		intent.putExtra(ROOM_KEY, roomKey)
-		startActivity(intent)
 	}
 
 	private fun signOut() {
@@ -182,7 +156,6 @@ class MainMessagesActivity : AppCompatActivity() {
 			R.id.menu_new_message -> {
 				val intent = Intent(this, NewUsersActivity::class.java)
 				startActivity(intent)
-				overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
 			}
 			R.id.menu_sign_out -> {
 				signOut()

@@ -18,22 +18,22 @@
 			android:theme="@style/AppTheme"
 			tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-		<activity android:name=".models.UserProfileActivity">
+		<activity android:name=".activities.UserProfileActivity">
 		</activity>
 
 
-		<activity android:name=".chatRooms.ChatLogActivity">
+		<activity android:name=".activities.ChatLogActivity">
 		</activity>
 
 
-		<activity android:name=".NewUsersActivity">
+		<activity android:name=".activities.NewUsersActivity">
 			<meta-data
 					android:name="android.support.PARENT_ACTIVITY"
-					android:value=".MainMessagesActivity"/>
+					android:value=".activities.MainGroupsActivity"/>
 		</activity>
 
 
-		<activity android:name=".MainMessagesActivity">
+		<activity android:name=".activities.MainGroupsActivity">
 		</activity>
 
 
