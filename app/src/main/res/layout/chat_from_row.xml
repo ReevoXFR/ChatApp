@@ -7,6 +7,7 @@
 
 	<TextView
 			android:text="Username"
+			android:textColor="@color/grey"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/chat_message_username"
 			app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
@@ -23,6 +24,7 @@
 	<TextView
 			android:text="This is my text message, long ass text message. Such wow. Multiple lines, u see? Haha, not funny. "
 			android:layout_width="wrap_content"
+			android:textColor="@color/black"
 			android:maxWidth="300dp"
 			android:minWidth="50dp"
 			android:layout_height="wrap_content"
@@ -30,11 +32,12 @@
 			app:layout_constraintTop_toTopOf="@+id/imageView_toRow"
 			app:layout_constraintStart_toEndOf="@+id/imageView_toRow" android:layout_marginStart="16dp"
 			app:layout_constraintBottom_toBottomOf="@+id/imageView_toRow"
-			android:background="@drawable/rounded_edittext_register_login"
+			android:background="@drawable/rounder_background_white"
 			android:padding="16dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"/>
 
 	<TextView
 			android:text="HH:MM"
+			android:textColor="@color/grey"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/chat_message_timestamp"
