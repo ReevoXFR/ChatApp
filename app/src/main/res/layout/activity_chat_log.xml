@@ -3,23 +3,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<android.support.v4.widget.SwipeRefreshLayout
-			android:id="@+id/swipe_load_more_messages"
+	<android.support.v7.widget.RecyclerView
+			android:id="@+id/recyclerView_chatLog"
+			app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 			android:layout_width="match_parent"
-			android:layout_height="500dp" android:layout_above="@+id/fragment_chat_log_navigation"
-			android:layout_alignParentTop="true">
-
-		<android.support.v7.widget.RecyclerView
-				android:id="@+id/recyclerView_chatLog"
-				app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:background="@color/com_facebook_button_background_color_disabled"/>
-
-	</android.support.v4.widget.SwipeRefreshLayout>
+			android:layout_marginBottom="60dp"
+			android:layout_height="match_parent"
+	android:background="@color/com_facebook_button_background_color_disabled"/>
 
 	<FrameLayout
-			android:id="@+id/fragment_chat_log_navigation"
 			android:layout_width="match_parent"
 			android:layout_height="?attr/actionBarSize"
 			android:layout_alignParentBottom="true">
@@ -28,20 +20,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal">
-
-			<Button android:layout_width="40dp" android:layout_height="40dp"
-			android:background="@drawable/ic_insert_photo_black_24dp"
-			android:padding="5dp"
-			android:id="@+id/gallery"/>
-
-
-
-			<Button android:layout_width="40dp" android:layout_height="40dp"
-			android:background="@drawable/ic_camera_alt_black_24dp"
-			android:padding="5dp"
-			android:id="@+id/camera"/>
-
-
 
 			<EditText
 					android:id="@+id/chatLog_writeText"
@@ -56,12 +34,7 @@
 					android:layout_height="wrap_content"
 					android:text="Send" />
 
-
 		</LinearLayout>
 	</FrameLayout>
-
-
-
-
 
 </RelativeLayout>

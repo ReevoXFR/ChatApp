@@ -4,14 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.support.v7.app.AlertDialog
 import android.util.Log
-import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.Toast
-import com.bumptech.glide.Glide
-import com.example.chatapp.activities.MainGroupsActivity
+import com.example.chatapp.MainMessagesActivity
 import com.example.chatapp.R
 import com.example.chatapp.models.User
 import com.facebook.AccessToken
@@ -28,6 +23,7 @@ import kotlinx.android.synthetic.main.activity_sign_in.*
 import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import com.facebook.FacebookCallback
+import com.facebook.login.LoginManager
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.database.FirebaseDatabase
 
@@ -47,12 +43,8 @@ class SignInActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
-        showSplashScreen()
 
-        Glide.with(applicationContext).load(R.drawable.loaders_ball).into(loader_image_view)
-        Glide.with(applicationContext).load(R.drawable.live_bg).into(sing_in_activity_background)
-
-
+        verifyUserIsLoggedIn()
 
         //Google
         firebaseAuth = FirebaseAuth.getInstance()
@@ -63,8 +55,8 @@ class SignInActivity : AppCompatActivity() {
         // Initialize Facebook Login button
         callbackManager = CallbackManager.Factory.create()
 
-        facebook_button.setReadPermissions("email", "public_profile")
-        facebook_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+        login_button.setReadPermissions("email", "public_profile")
+        login_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
                 Log.d(TAG, "facebook:onSuccess:$loginResult")
                 handleFacebookAccessToken(loginResult.accessToken)
@@ -72,7 +64,7 @@ class SignInActivity : AppCompatActivity() {
 
             override fun onCancel() {
                 Log.d(TAG, "facebook:onCancel")
-	            buildDialog("Facebook")
+                // ...
             }
 
             override fun onError(error: FacebookException) {
@@ -80,6 +72,10 @@ class SignInActivity : AppCompatActivity() {
                 // ...
             }
         })
+
+
+
+
 
     }
 
@@ -94,51 +90,20 @@ class SignInActivity : AppCompatActivity() {
                     Log.d(TAG, "signInWithCredential:success")
                     val user = auth.currentUser
                     Toast.makeText(this, user?.uid, Toast.LENGTH_LONG)
-                    val intent = Intent(this, MainGroupsActivity::class.java)
+                    val intent = Intent(this, MainMessagesActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                    //updateUI(null)
                 }
 
                 // ...
             }
     }
-
-    private fun buildDialog(provider: String){
-
-        val dialog = AlertDialog.Builder(this)
-        dialog.setCancelable(false)
-        dialog.setTitle("$provider login error")
-        dialog.setMessage("Please try again!")
-        // Display a neutral button on alert dialog
-        dialog.setNeutralButton("Ok - I will retry"){_,_ ->
-            Toast.makeText(this,"Ok.",Toast.LENGTH_SHORT).show()
-        }
-
-        dialog.create()
-        dialog.show()
-
-    }
-
-    private fun showSplashScreen(){
-        splash_screen.visibility = View.VISIBLE
-        val isLoggedIn = verifyUserIsLoggedIn()
-            Handler().postDelayed(
-                {
-                    if(isLoggedIn) {
-                        val intent = Intent(this, MainGroupsActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(intent)
-                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-                    } else {
-                        val aniFade = AnimationUtils.loadAnimation(applicationContext, R.anim.fade_out)
-                        splash_screen.startAnimation(aniFade)
-                    }
-                }, 4500 // value in milliseconds 
-            )
-     }
 
     private fun configureGoogleSignIn() {
         mGoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -152,7 +117,16 @@ class SignInActivity : AppCompatActivity() {
         google_button.setOnClickListener {
             signInGoogle()
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            startActivity(MainMessagesActivity.getLaunchIntent(this))
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+            finish()
+        }
     }
 
     private fun signInGoogle() {
@@ -169,7 +143,9 @@ class SignInActivity : AppCompatActivity() {
             try {
                 val account = task.getResult(ApiException::class.java)
                 if (account != null) {
+                    //saveUserToFirebaseDatabase()
                     firebaseAuthWithGoogle(account)
+
                 }
             } catch (e: ApiException) {
                 Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
@@ -184,7 +160,7 @@ class SignInActivity : AppCompatActivity() {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                startActivity(MainGroupsActivity.getLaunchIntent(this))
+                startActivity(MainMessagesActivity.getLaunchIntent(this))
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             } else {
                 Toast.makeText(this, "Google sign in failed:(", Toast.LENGTH_LONG).show()
@@ -198,13 +174,24 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    private fun verifyUserIsLoggedIn(): Boolean {
+    private fun verifyUserIsLoggedIn() {
 
         val user = FirebaseAuth.getInstance().currentUser
-        return user?.uid != null
+        user?.let {
+            for (profile in it.providerData) {
+                val uid = profile.uid
+                val provider = profile.providerId
+            }
+        }
+        if(user?.uid != null){
+            val intent = Intent(this, MainMessagesActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        } else { Toast.makeText(this, "NULL UID", Toast.LENGTH_LONG)}
     }
 
-    fun saveUserToFirebaseDatabase() {
+    public fun saveUserToFirebaseDatabase() {
         val name = FirebaseAuth.getInstance().currentUser?.displayName.toString()
         val uid = FirebaseAuth.getInstance().uid.toString()
         val profile = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
@@ -216,7 +203,7 @@ class SignInActivity : AppCompatActivity() {
         ref.setValue(user)
             .addOnSuccessListener {
                 Log.d("RegisterActivity", "Finally we saved the user to Firebase Database")
-//                    val intent = Intent(this, MainGroupsActivity::class.java)
+//                    val intent = Intent(this, MainMessagesActivity::class.java)
 //                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
 //                    startActivity(intent)
 //                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out)

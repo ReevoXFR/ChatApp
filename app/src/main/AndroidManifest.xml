@@ -8,7 +8,6 @@
 	<dist:module dist:instant="true"/>
 
 	<uses-permission android:name="android.permission.INTERNET"/>
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 	<application
 			android:allowBackup="true"
@@ -19,7 +18,6 @@
 			android:theme="@style/AppTheme"
 			tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
-<<<<<<< HEAD
 		<service android:name=".firebase.MyFirebaseMessagingService">
 			<intent-filter>
 				<action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -27,22 +25,14 @@
 		</service>
 
 		<activity android:name=".models.UserProfileActivity">
-=======
-		<activity android:name=".activities.UserProfileActivity">
->>>>>>> 14a9fe4313bf22f339e14686d8e632b47201a7ab
 		</activity>
-
-
-		<activity android:name=".activities.ChatLogActivity">
+		<activity android:name=".chatRooms.ChatLogActivity">
 		</activity>
-
-
-		<activity android:name=".activities.NewUsersActivity">
+		<activity android:name=".NewUsersActivity">
 			<meta-data
 					android:name="android.support.PARENT_ACTIVITY"
-					android:value=".activities.MainGroupsActivity"/>
+					android:value=".MainMessagesActivity"/>
 		</activity>
-<<<<<<< HEAD
 		<activity android:name=".MainMessagesActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"/>
@@ -53,35 +43,18 @@
 						android:scheme="https"
 						android:pathPrefix="/deepLink"/>
 			</intent-filter>
-=======
-
-
-		<activity android:name=".activities.MainGroupsActivity">
->>>>>>> 14a9fe4313bf22f339e14686d8e632b47201a7ab
 		</activity>
-
-
-		<activity android:name=".registration.SignInActivity"
-		          android:theme="@style/Theme.AppCompat.NoActionBar">
-			<intent-filter>
-
-				<action android:name="android.intent.action.MAIN"/>
-				<category android:name="android.intent.category.LAUNCHER"/>
-			</intent-filter>
+		<activity android:name=".registration.SignInActivity">
 		</activity>
-
 
 		<meta-data
 				android:name="com.facebook.sdk.ApplicationId"
 				android:value="@string/facebook_app_id"/>
 
-
 		<activity
 				android:name="com.facebook.FacebookActivity"
 				android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
 				android:label="@string/app_name"/>
-
-
 		<activity
 				android:name="com.facebook.CustomTabActivity"
 				android:exported="true">
@@ -94,7 +67,16 @@
 				<data android:scheme="@string/fb_login_protocol_scheme"/>
 			</intent-filter>
 		</activity>
+		<activity
+				android:name=".SplashScreenActivity"
+				android:noHistory="true"
+				android:theme="@style/SplashScreenTheme">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
 
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
 	</application>
 
 </manifest>
