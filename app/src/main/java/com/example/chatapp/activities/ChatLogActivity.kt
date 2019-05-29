@@ -17,8 +17,10 @@ import android.view.View
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.chatapp.R
-import com.example.chatapp.models.ChatTextMessage
+import com.example.chatapp.models.ChatMessage
 import com.example.chatapp.models.Room
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.ChildEventListener
@@ -27,6 +29,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
@@ -48,20 +51,17 @@ import java.util.concurrent.TimeUnit
 @Suppress("DEPRECATED_IDENTITY_EQUALS", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "DEPRECATION")
 class ChatLogActivity : AppCompatActivity() {
 
-	companion object{
-		const val TAG = "ChatLogActivity"
-		var url = ""
-	}
 
 	private lateinit var filePath: Uri
+	private lateinit var imageUri: Uri
+	private lateinit var storage: FirebaseStorage
+	private lateinit var storageReference: StorageReference
 	private var PICK_IMAGE_REQUEST: Int = 71
 	private val TAKE_PICTURE = 1
-	lateinit var imageUri: Uri
-	var counter = 1
-	lateinit var storage: FirebaseStorage
-	lateinit var storageReference: StorageReference
-
 	val adapter = GroupAdapter<ViewHolder>()
+	var counter = 1
+
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_chat_log)
@@ -102,15 +102,25 @@ class ChatLogActivity : AppCompatActivity() {
 		}
 
 		camera.setOnClickListener {
-			val builder: StrictMode.VmPolicy.Builder = StrictMode.VmPolicy.Builder()
-			StrictMode.setVmPolicy(builder.build())
-			val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-			val photo = File(Environment.getExternalStorageDirectory(),  "Pic.jpg")
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo))
-			imageUri = Uri.fromFile(photo)
-			startActivityForResult(intent, TAKE_PICTURE)
+			openCamera()
 		}
 
+	}
+
+
+	companion object {
+		const val TAG = "ChatLogActivity"
+	}
+
+
+	private fun openCamera() {
+		val builder: StrictMode.VmPolicy.Builder = StrictMode.VmPolicy.Builder()
+		StrictMode.setVmPolicy(builder.build())
+		val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+		val photo = File(Environment.getExternalStorageDirectory(), "Pic.jpg")
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo))
+		imageUri = Uri.fromFile(photo)
+		startActivityForResult(intent, TAKE_PICTURE)
 	}
 
 
@@ -133,13 +143,13 @@ class ChatLogActivity : AppCompatActivity() {
 
 		// Trying to send camera pictures will result in a crash -
 		//Todo: Research what's the problem - after taking picture with camera, the intent.extra it's null.
-		if (requestCode == TAKE_PICTURE ) {
+		if (requestCode == TAKE_PICTURE) {
 			filePath = data?.extras?.get("data") as Uri
 			uploadImage()
 		}
 	}
 
-	private fun uploadImage(){
+	private fun uploadImage() {
 
 		val progressDialog = ProgressDialog(this)
 		progressDialog.setTitle("Uploading...")
@@ -147,77 +157,96 @@ class ChatLogActivity : AppCompatActivity() {
 		storage = FirebaseStorage.getInstance()
 		storageReference = storage.reference
 
-		val ref: StorageReference = storageReference.child("images/"+ UUID.randomUUID().toString())
+		val ref: StorageReference = storageReference.child("images/" + UUID.randomUUID().toString())
 		ref.putFile(filePath)
-			.addOnSuccessListener {
 
-				ref.downloadUrl.addOnSuccessListener {
-					url = it.toString()
-					Toast.makeText(this, "Uploaded at: $it", Toast.LENGTH_LONG).show()
 
-				}.addOnFailureListener {
-					Toast.makeText(this, "Uploading picture failed, please try again.", Toast.LENGTH_LONG).show()
+
+		var uploadTask = ref.putFile(filePath)
+		var downloadUri = ""
+		val urlTask = uploadTask.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
+			if (!task.isSuccessful) {
+				task.exception?.let {
+					throw it
 				}
-
-				progressDialog.dismiss()
-
-				Toast.makeText(this, "Uploaded at: $url", Toast.LENGTH_LONG).show()
-
-				val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
-				val key = extra.uid
-				val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
-				val fromId = FirebaseAuth.getInstance().uid.toString()
-				val toId = extra.title
-
-				val reference = FirebaseDatabase.getInstance().getReference("/messages/$key").push()
-
-				val chatMessage = ChatTextMessage("Image", reference.key!!, url, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
-
-				reference.setValue(chatMessage)
-					.addOnSuccessListener {
-						Log.d(TAG, "Saved message: ${reference.key}")
-						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
-
-						val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/timestamp/")
-
-						latestMessagesRef.setValue(chatMessage.time)}
 			}
+			return@Continuation ref.downloadUrl
+		}).addOnCompleteListener { task ->
+			if (task.isSuccessful) {
+				downloadUri = task.result.toString()
+			}
+
+			progressDialog.dismiss()
+
+			val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
+			val key = extra.uid
+			val photoUrl = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
+			val fromId = FirebaseAuth.getInstance().uid.toString()
+			val toId = extra.title
+
+			val reference = FirebaseDatabase.getInstance().getReference("/messages/$key").push()
+			val chatMessage = ChatMessage("Image", reference.key!!, downloadUri, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
+
+			reference.setValue(chatMessage)
+				.addOnSuccessListener {
+					Log.d(TAG, "Saved message: ${reference.key}")
+					recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
+
+					val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/timestamp/")
+
+					latestMessagesRef.setValue(chatMessage.time)
+				}
+		}
+
+
 	}
 
 
-	private fun listenForMessages(counter: Int){
+	private fun listenForMessages(counter: Int) {
 		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
 		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToLast(counter * 50)
 
-		ref.addChildEventListener(object: ChildEventListener{
+		ref.addChildEventListener(object : ChildEventListener {
 
 			override fun onChildAdded(p0: DataSnapshot, p1: String?) {
-				val chatMessage = p0.getValue(ChatTextMessage::class.java)
+				val chatMessage = p0.getValue(ChatMessage::class.java)
 				val user = FirebaseAuth.getInstance().currentUser
 
-				if(chatMessage != null && chatMessage.type == "String"){
-					Log.d(TAG, chatMessage.text)
+				if (chatMessage != null && chatMessage.type == "String") {
+					Log.d(TAG, chatMessage.type)
 
-					if(chatMessage.fromId == FirebaseAuth.getInstance().uid){
+					if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
 						adapter.add(TextToItem(chatMessage.text, user!!, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
-					}   else {
-						adapter.add(TextFromItem(chatMessage.text,user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
+					} else {
+						adapter.add(TextFromItem(chatMessage.text, user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext
+							)
+						)
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					}
-				} else if(chatMessage != null && chatMessage.type == "Image"){
+				} else if (chatMessage != null && chatMessage.type == "Image") {
 					Log.d(TAG, chatMessage.text)
 
-					if(chatMessage.fromId == FirebaseAuth.getInstance().uid){
+					if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
 						adapter.add(ImageToItem(chatMessage.text, user!!, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
-					}   else {
-						adapter.add(ImageFromItem(chatMessage.text,user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
+					} else {
+						adapter.add(
+							ImageFromItem(
+								chatMessage.text,
+								user?.displayName.toString(),
+								chatMessage.fromId,
+								chatMessage.photoUrl,
+								chatMessage.time,
+								applicationContext
+							)
+						)
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					}
 				}
 			}
+
 			override fun onCancelled(p0: DatabaseError) {}
 			override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
 			override fun onChildMoved(p0: DataSnapshot, p1: String?) {}
@@ -226,7 +255,7 @@ class ChatLogActivity : AppCompatActivity() {
 	}
 
 
-	private fun performSendMessage(){
+	private fun performSendMessage() {
 
 		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
@@ -236,8 +265,8 @@ class ChatLogActivity : AppCompatActivity() {
 		val toId = extra.title
 		val reference = FirebaseDatabase.getInstance().getReference("/messages/$key").push()
 
-		if(chatLog_writeText.text.isNotEmpty()) {
-			val chatMessage = ChatTextMessage("String", reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
+		if (chatLog_writeText.text.isNotEmpty()) {
+			val chatMessage = ChatMessage("String", reference.key!!, text, fromId, toId, System.currentTimeMillis() / 1000, photoUrl)
 
 			reference.setValue(chatMessage)
 				.addOnSuccessListener {
@@ -247,17 +276,25 @@ class ChatLogActivity : AppCompatActivity() {
 				}
 
 			val latestMessagesRef = FirebaseDatabase.getInstance().getReference("/rooms/$key/timestamp/")
-			latestMessagesRef.setValue(chatMessage.time)}
+			latestMessagesRef.setValue(chatMessage.time)
+		}
 	}
 }
 
 
-class TextFromItem(private val text: String, val username: String, val fromId: String, private val photoUrl: String, val time: Long, private val context: Context): Item<ViewHolder>() {
+class TextFromItem(
+	private val text: String,
+	val username: String,
+	val fromId: String,
+	private val photoUrl: String,
+	val time: Long,
+	private val context: Context
+) : Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 
 		val day = TimeUnit.SECONDS.toDays(time)
-		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
-		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
+		val hours = TimeUnit.SECONDS.toHours(time) - (day * 24)
+		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time) * 60)
 
 		viewHolder.itemView.textView_from_row.text = text
 		viewHolder.itemView.chat_message_username.text = username
@@ -275,12 +312,17 @@ class TextFromItem(private val text: String, val username: String, val fromId: S
 }
 
 
-class TextToItem(private val text: String, val firebaseUser: FirebaseUser, val time: Long, private val context: Context): Item<ViewHolder>() {
+class TextToItem(
+	private val text: String,
+	val firebaseUser: FirebaseUser,
+	val time: Long,
+	private val context: Context
+) : Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 
 		val day = TimeUnit.SECONDS.toDays(time)
-		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
-		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
+		val hours = TimeUnit.SECONDS.toHours(time) - (day * 24)
+		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time) * 60)
 
 		viewHolder.itemView.textView_to_row.text = text
 		viewHolder.itemView.chat_message_username_toRow.text = firebaseUser.displayName
@@ -292,18 +334,26 @@ class TextToItem(private val text: String, val firebaseUser: FirebaseUser, val t
 		Glide.with(context).load(uri).into(targetImageLocation)
 
 	}
+
 	override fun getLayout(): Int {
 		return R.layout.chat_to_row
 	}
 }
 
 
-class ImageFromItem(private val text: String, val username: String, val fromId: String, private val photoUrl: String, val time: Long, private val context: Context): Item<ViewHolder>() {
+class ImageFromItem(
+	private val text: String,
+	val username: String,
+	val fromId: String,
+	private val photoUrl: String,
+	val time: Long,
+	private val context: Context
+) : Item<ViewHolder>() {
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 
 		val day = TimeUnit.SECONDS.toDays(time)
-		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
-		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
+		val hours = TimeUnit.SECONDS.toHours(time) - (day * 24)
+		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time) * 60)
 
 		Glide.with(context).load(text).into(viewHolder.itemView.imageView_from_row)
 		viewHolder.itemView.chat_message_username.text = username
@@ -325,8 +375,8 @@ class ImageToItem(private val text: String, val firebaseUser: FirebaseUser, val 
 	override fun bind(viewHolder: ViewHolder, position: Int) {
 
 		val day = TimeUnit.SECONDS.toDays(time)
-		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
-		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
+		val hours = TimeUnit.SECONDS.toHours(time) - (day * 24)
+		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time) * 60)
 
 		Glide.with(context).load(text).into(viewHolder.itemView.imageView_to_row)
 		viewHolder.itemView.chat_message_username_toRow.text = firebaseUser.displayName
