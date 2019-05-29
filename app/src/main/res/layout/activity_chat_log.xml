@@ -29,6 +29,20 @@
 				android:layout_height="wrap_content"
 				android:orientation="horizontal">
 
+			<Button android:layout_width="40dp" android:layout_height="40dp"
+			android:background="@drawable/ic_insert_photo_black_24dp"
+			android:padding="5dp"
+			android:id="@+id/gallery"/>
+
+
+
+			<Button android:layout_width="40dp" android:layout_height="40dp"
+			android:background="@drawable/ic_camera_alt_black_24dp"
+			android:padding="5dp"
+			android:id="@+id/camera"/>
+
+
+
 			<EditText
 					android:id="@+id/chatLog_writeText"
 					android:hint="      Insert message here"
@@ -41,6 +55,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="Send" />
+
 
 		</LinearLayout>
 	</FrameLayout>
