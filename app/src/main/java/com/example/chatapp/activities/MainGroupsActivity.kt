@@ -112,7 +112,7 @@ class MainGroupsActivity : AppCompatActivity() {
 					}
 				}
 
-				adapter.setOnItemClickListener{ item, view ->
+				adapter.setOnItemClickListener{ item, _ ->
 					val roomItem = item as RoomItem
 					val intent = Intent(applicationContext, ChatLogActivity::class.java)
 					intent.putExtra(ROOM_KEY,roomItem.room)

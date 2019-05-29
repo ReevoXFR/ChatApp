@@ -1,9 +1,10 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.chatapp.activities
 
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -44,16 +45,17 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
+@Suppress("DEPRECATED_IDENTITY_EQUALS", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "DEPRECATION")
 class ChatLogActivity : AppCompatActivity() {
 
 	companion object{
-		val TAG = "ChatLogActivity"
+		const val TAG = "ChatLogActivity"
 		var url = ""
 	}
 
-	lateinit var filePath: Uri
-	var PICK_IMAGE_REQUEST: Int = 71
-	val TAKE_PICTURE = 1
+	private lateinit var filePath: Uri
+	private var PICK_IMAGE_REQUEST: Int = 71
+	private val TAKE_PICTURE = 1
 	lateinit var imageUri: Uri
 	var counter = 1
 	lateinit var storage: FirebaseStorage
@@ -126,8 +128,6 @@ class ChatLogActivity : AppCompatActivity() {
 
 		if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.data != null) {
 			filePath = data.data
-			Toast.makeText(this, "PICK_IMAGE_REQUEST", Toast.LENGTH_LONG).show()
-			val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
 			uploadImage()
 		}
 
@@ -135,8 +135,6 @@ class ChatLogActivity : AppCompatActivity() {
 		//Todo: Research what's the problem - after taking picture with camera, the intent.extra it's null.
 		if (requestCode == TAKE_PICTURE ) {
 			filePath = data?.extras?.get("data") as Uri
-			Toast.makeText(this, "PICK_IMAGE_REQUEST", Toast.LENGTH_LONG).show()
-			val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
 			uploadImage()
 		}
 	}
@@ -146,7 +144,6 @@ class ChatLogActivity : AppCompatActivity() {
 		val progressDialog = ProgressDialog(this)
 		progressDialog.setTitle("Uploading...")
 		progressDialog.show()
-
 		storage = FirebaseStorage.getInstance()
 		storageReference = storage.reference
 
@@ -208,9 +205,6 @@ class ChatLogActivity : AppCompatActivity() {
 					}   else {
 						adapter.add(TextFromItem(chatMessage.text,user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
-						val chatPartnerId = chatMessage.fromId
-						val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
-						//Toast.makeText(baseContext, "FROM: ${chatMessage.photoUrl}", Toast.LENGTH_LONG).show()
 					}
 				} else if(chatMessage != null && chatMessage.type == "Image"){
 					Log.d(TAG, chatMessage.text)
@@ -221,11 +215,8 @@ class ChatLogActivity : AppCompatActivity() {
 					}   else {
 						adapter.add(ImageFromItem(chatMessage.text,user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
-						val chatPartnerId = chatMessage.fromId
-						val ref = FirebaseDatabase.getInstance().getReference("/users/$chatPartnerId")
 					}
 				}
-
 			}
 			override fun onCancelled(p0: DatabaseError) {}
 			override fun onChildChanged(p0: DataSnapshot, p1: String?) {}
@@ -267,7 +258,6 @@ class TextFromItem(private val text: String, val username: String, val fromId: S
 		val day = TimeUnit.SECONDS.toDays(time)
 		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
 		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
-		val second = TimeUnit.SECONDS.toSeconds(time) - (TimeUnit.SECONDS.toMinutes(time) *60)
 
 		viewHolder.itemView.textView_from_row.text = text
 		viewHolder.itemView.chat_message_username.text = username
@@ -291,7 +281,6 @@ class TextToItem(private val text: String, val firebaseUser: FirebaseUser, val t
 		val day = TimeUnit.SECONDS.toDays(time)
 		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
 		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
-		val second = TimeUnit.SECONDS.toSeconds(time) - (TimeUnit.SECONDS.toMinutes(time) *60)
 
 		viewHolder.itemView.textView_to_row.text = text
 		viewHolder.itemView.chat_message_username_toRow.text = firebaseUser.displayName
@@ -315,7 +304,6 @@ class ImageFromItem(private val text: String, val username: String, val fromId: 
 		val day = TimeUnit.SECONDS.toDays(time)
 		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
 		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
-		val second = TimeUnit.SECONDS.toSeconds(time) - (TimeUnit.SECONDS.toMinutes(time) *60)
 
 		Glide.with(context).load(text).into(viewHolder.itemView.imageView_from_row)
 		viewHolder.itemView.chat_message_username.text = username
@@ -339,7 +327,6 @@ class ImageToItem(private val text: String, val firebaseUser: FirebaseUser, val 
 		val day = TimeUnit.SECONDS.toDays(time)
 		val hours = TimeUnit.SECONDS.toHours(time) - (day *24)
 		val minute = TimeUnit.SECONDS.toMinutes(time) - (TimeUnit.SECONDS.toHours(time)* 60)
-		val second = TimeUnit.SECONDS.toSeconds(time) - (TimeUnit.SECONDS.toMinutes(time) *60)
 
 		Glide.with(context).load(text).into(viewHolder.itemView.imageView_to_row)
 		viewHolder.itemView.chat_message_username_toRow.text = firebaseUser.displayName

@@ -34,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase
 
 
 
+@Suppress("DEPRECATION")
 class SignInActivity : AppCompatActivity() {
 
     val RC_SIGN_IN: Int = 1
