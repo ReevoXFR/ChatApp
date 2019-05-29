@@ -44,7 +44,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation 'com.google.firebase:firebase-auth:17.0.0'
     implementation 'com.google.firebase:firebase-database:17.0.0'
+<<<<<<< HEAD
     implementation 'com.google.firebase:firebase-messaging:18.0.0'
+=======
+    implementation 'com.google.firebase:firebase-storage:17.0.0'
+>>>>>>> 14a9fe4313bf22f339e14686d8e632b47201a7ab
     //play service auth
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     //facebook
@@ -53,10 +57,11 @@ dependencies {
     implementation "org.jetbrains.anko:anko:0.10.8"
     implementation "org.jetbrains.anko:anko-design:0.10.8"
     implementation "org.jetbrains.anko:anko-coroutines:0.10.8"
-    //groupie
+    //groupie - do not update
     implementation 'com.xwray:groupie:2.1.0'
-    //picasso
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.4.0'
+    //kapt 'com.github.bumptech.glide:compiler:4.4.0'
 }
 
 apply plugin: 'com.google.gms.google-services'
