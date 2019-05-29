@@ -14,7 +14,7 @@
 				app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:background="@color/com_facebook_button_background_color_disabled"/>
+				android:background="@color/colorPrimaryDark"/>
 
 	</android.support.v4.widget.SwipeRefreshLayout>
 
@@ -26,8 +26,9 @@
 
 		<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
+				android:layout_height="match_parent"
+				android:orientation="horizontal"
+		android:background="@color/colorSecundaryDark">
 
 			<Button android:layout_width="40dp" android:layout_height="40dp"
 			android:background="@drawable/ic_insert_photo_black_24dp"
@@ -42,19 +43,23 @@
 			android:id="@+id/camera"/>
 
 
-
 			<EditText
 					android:id="@+id/chatLog_writeText"
+					android:textColor="@color/white"
 					android:hint="      Insert message here"
+					android:textColorHint="@color/grey"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_weight="1" />
+					android:layout_height="match_parent"
+					android:layout_weight="1"/>
 
 			<Button
 					android:id="@+id/chatLog_sendText"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="Send" />
+					android:layout_width="60dp"
+					android:layout_height="40dp"
+					android:text="Send"
+					android:layout_marginTop="2dp"
+					android:textColor="@color/white"
+					android:background="@drawable/rounder_background_orange"/>
 
 
 		</LinearLayout>

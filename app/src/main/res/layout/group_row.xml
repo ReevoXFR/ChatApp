@@ -4,6 +4,13 @@
                                              xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="100dp">
+	<ImageView android:layout_width="match_parent" android:layout_height="match_parent"
+	           android:background="@drawable/rounder_background_dark"
+	           app:layout_constraintTop_toTopOf="parent"
+	           android:layout_marginTop="8dp" app:layout_constraintBottom_toBottomOf="parent"
+	           android:layout_marginBottom="8dp" app:layout_constraintStart_toStartOf="parent"
+	           android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
+	           android:layout_marginEnd="8dp"/>
 
 	<ImageView
 			android:layout_width="50dp"
@@ -14,6 +21,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"/>
 	<TextView
 			android:text="GROUP NAME"
+			android:textColor="@color/dark_white"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/group_name" app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -21,6 +29,7 @@
 			app:layout_constraintBottom_toTopOf="@+id/group_description"/>
 	<TextView
 			android:text="Latest message, latest message"
+			android:textColor="@color/grey"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:id="@+id/group_description" app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -28,8 +37,10 @@
 			app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@+id/group_name"
 			app:layout_constraintHorizontal_bias="0.5"/>
 
-	<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
-	           android:src="@drawable/chevron"
+
+
+	<ImageView android:layout_width="70dp" android:layout_height="70dp"
+	           android:src="@drawable/ic_chevron_right_white_24dp"
 	           app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
 	           app:layout_constraintStart_toStartOf="@+id/imageView" android:layout_marginStart="8dp"
 	           android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
