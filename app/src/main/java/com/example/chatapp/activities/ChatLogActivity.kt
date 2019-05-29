@@ -43,6 +43,7 @@ import kotlinx.android.synthetic.main.chat_to_row.view.chat_message_timestamp_to
 import kotlinx.android.synthetic.main.chat_to_row.view.chat_message_username_toRow
 import kotlinx.android.synthetic.main.image_from_row.view.*
 import kotlinx.android.synthetic.main.image_to_row.view.*
+import org.jetbrains.anko.design.snackbar
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -70,7 +71,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 		recyclerView_chatLog.adapter = adapter
 		supportActionBar?.title = extra.title
-		listenForMessages(counter)
+		listenForMessages()
 
 		chatLog_sendText.setOnClickListener {
 			Log.d(TAG, "Attempt to send message...")
@@ -89,13 +90,6 @@ class ChatLogActivity : AppCompatActivity() {
 				return false
 			}
 		})
-
-		swipe_load_more_messages.setOnRefreshListener {
-			counter += 1
-			adapter.clear()
-			listenForMessages(counter)
-			swipe_load_more_messages.isRefreshing = false
-		}
 
 		gallery.setOnClickListener {
 			chooseImage()
@@ -202,13 +196,12 @@ class ChatLogActivity : AppCompatActivity() {
 	}
 
 
-	private fun listenForMessages(counter: Int) {
+	private fun listenForMessages() {
+
 		val extra = intent.getParcelableExtra<Room>(MainGroupsActivity.ROOM_KEY)
 		val key = extra.uid
 		val ref = FirebaseDatabase.getInstance().getReference("/messages/$key").limitToLast(counter * 50)
-
-		ref.addChildEventListener(object : ChildEventListener {
-
+		val childListener = ref.addChildEventListener(object : ChildEventListener {
 			override fun onChildAdded(p0: DataSnapshot, p1: String?) {
 				val chatMessage = p0.getValue(ChatMessage::class.java)
 				val user = FirebaseAuth.getInstance().currentUser
@@ -221,7 +214,7 @@ class ChatLogActivity : AppCompatActivity() {
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					} else {
 						adapter.add(TextFromItem(chatMessage.text, user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext
-							)
+						)
 						)
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					}
@@ -232,16 +225,7 @@ class ChatLogActivity : AppCompatActivity() {
 						adapter.add(ImageToItem(chatMessage.text, user!!, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					} else {
-						adapter.add(
-							ImageFromItem(
-								chatMessage.text,
-								user?.displayName.toString(),
-								chatMessage.fromId,
-								chatMessage.photoUrl,
-								chatMessage.time,
-								applicationContext
-							)
-						)
+						adapter.add(ImageFromItem(chatMessage.text, user?.displayName.toString(), chatMessage.fromId, chatMessage.photoUrl, chatMessage.time, applicationContext))
 						recyclerView_chatLog.scrollToPosition(adapter.itemCount - 1)
 					}
 				}
@@ -252,6 +236,16 @@ class ChatLogActivity : AppCompatActivity() {
 			override fun onChildMoved(p0: DataSnapshot, p1: String?) {}
 			override fun onChildRemoved(p0: DataSnapshot) {}
 		})
+
+		swipe_load_more_messages.setOnRefreshListener {
+			counter += 1
+			ref.removeEventListener(childListener)
+			adapter.clear()
+			listenForMessages()
+			recyclerView_chatLog.scrollToPosition(recyclerView_chatLog.childCount)
+			swipe_load_more_messages.isRefreshing = false
+		}
+
 	}
 
 
