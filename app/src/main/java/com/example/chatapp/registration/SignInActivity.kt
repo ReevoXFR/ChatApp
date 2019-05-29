@@ -74,13 +74,6 @@ class SignInActivity : AppCompatActivity() {
     }
 
 
-//    companion object {
-//        fun getLaunchIntent(from: Context) = Intent(from, SignInActivity::class.java).apply {
-//            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//        }
-//    }
-
-
     /* Facebook Auth */
     private fun configureFacebook(){
         callbackManager = CallbackManager.Factory.create()
@@ -113,7 +106,6 @@ class SignInActivity : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithCredential:success")
                     val user = auth.currentUser
-                    Toast.makeText(this, user?.uid, Toast.LENGTH_LONG)
                     val intent = Intent(this, MainGroupsActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
@@ -143,6 +135,7 @@ class SignInActivity : AppCompatActivity() {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         /* Google Auth */
@@ -159,7 +152,6 @@ class SignInActivity : AppCompatActivity() {
         }
         /* Facebook Auth */
         callbackManager.onActivityResult(requestCode, resultCode, data)
-
     }
 
 
@@ -191,7 +183,6 @@ class SignInActivity : AppCompatActivity() {
         val profile = FirebaseAuth.getInstance().currentUser?.photoUrl.toString()
         val provider = FirebaseAuth.getInstance().currentUser?.providerId.toString()
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-
         val user = User(uid, name, profile, provider)
 
         ref.setValue(user)
@@ -238,23 +229,3 @@ class SignInActivity : AppCompatActivity() {
         )
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
